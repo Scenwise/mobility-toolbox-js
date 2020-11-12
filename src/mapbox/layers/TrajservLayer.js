@@ -54,6 +54,7 @@ class TrajservLayer extends mixin(TrackerLayer) {
       // Set to true if the canvas source is animated. If the canvas is static, animate should be set to false to improve performance.
       animate: true,
     };
+    console.log(this.map.getBearing(), getSourceCoordinates(map));
 
     const layer = {
       id: this.key,
@@ -68,6 +69,54 @@ class TrajservLayer extends mixin(TrackerLayer) {
 
     map.addSource(this.key, source);
     map.addLayer(layer, beforeId);
+    map.addSource('route', {
+      type: 'geojson',
+      data: {
+        type: 'Feature',
+        properties: {},
+        geometry: {
+          type: 'LineString',
+          coordinates: getSourceCoordinates(map),
+        },
+      },
+    });
+    map.addLayer(
+      {
+        id: 'route',
+        type: 'line',
+        source: 'route',
+        layout: {
+          'line-join': 'round',
+          'line-cap': 'round',
+        },
+        paint: {
+          'line-color': '#888',
+          'line-width': 8,
+        },
+      },
+      beforeId,
+    );
+    console.log(this.map.unproject([10, 10]));
+    map.addSource('points', {
+      type: 'geojson',
+      data: {
+        type: 'Feature',
+        properties: {},
+        geometry: {
+          type: 'Point',
+          coordinates: this.map.unproject([10, 10]).toArray(),
+        },
+      },
+    });
+    map.addLayer(
+      {
+        id: 'point',
+        type: 'circle',
+        source: 'points',
+        paint: { 'circle-radius': 50, 'circle-color': 'Red' },
+      },
+      beforeId,
+    );
   }
 
   /**
@@ -87,6 +136,7 @@ class TrajservLayer extends mixin(TrackerLayer) {
     if (!this.map) {
       return;
     }
+    window.layer = this;
     super.start();
     this.map.on('click', this.onMapClick);
     this.map.on('move', this.onMove);
@@ -107,13 +157,60 @@ class TrajservLayer extends mixin(TrackerLayer) {
    * @private
    */
   onMove() {
+    // if (!this.map.isRotating()) {
+    console.log(this.map.getBearing(), getSourceCoordinates(this.map));
     this.map.getSource(this.key).setCoordinates(getSourceCoordinates(this.map));
+    this.map.getSource('route').setData({
+      type: 'Feature',
+      properties: {},
+      geometry: {
+        type: 'LineString',
+        coordinates: getSourceCoordinates(this.map),
+      },
+    });
+    this.map.getSource('points').setData({
+      type: 'Feature',
+      properties: {},
+      geometry: {
+        type: 'Point',
+        coordinates: this.map.unproject([10, 10]).toArray(),
+      },
+    });
+    // }
 
-    const { width, height } = this.map.getCanvas();
+    let { width, height } = this.map.getCanvas();
+    const northWestPixel = this.map.project(
+      this.map.getBounds().getNorthWest(),
+    );
+    const northEastPixel = this.map.project(
+      this.map.getBounds().getNorthEast(),
+    );
+    console.log(
+      northWestPixel,
+      northEastPixel,
+      Math.sqrt(
+        (northWestPixel.x - northEastPixel.x) ** 2 +
+          (northWestPixel.y - northEastPixel.y) ** 2,
+      ),
+    );
+    width = Math.sqrt(
+      (northWestPixel.x - northEastPixel.x) ** 2 +
+        (northWestPixel.y - northEastPixel.y) ** 2,
+    );
+    const southWestPixel = this.map.project(
+      this.map.getBounds().getSouthWest(),
+    );
+    height = Math.sqrt(
+      (northWestPixel.x - southWestPixel.x) ** 2 +
+        (northWestPixel.y - southWestPixel.y) ** 2,
+    );
+
+    // We must get the proper source coordinate.
     this.tracker.renderTrajectories(
       this.currTime,
       [width, height],
       getResolution(this.map),
+      this.map.getBearing(),
     );
   }
 

@@ -1,4 +1,5 @@
 import { toLonLat, fromLonLat } from 'ol/proj';
+import { matrix, multiply } from 'mathjs';
 import Layer from '../../common/layers/Layer';
 import mixin from '../../common/mixins/TrackerLayerMixin';
 import { getResolution } from '../utils';
@@ -40,9 +41,78 @@ class TrackerLayer extends mixin(Layer) {
         const pixelRatio = window.devicePixelRatio || 1;
         const [lng, lat] = toLonLat(coord);
         const { x, y } = this.map.project({ lng, lat });
-        return [x * pixelRatio, y * pixelRatio];
+
+        // return [
+        //   x *pixelRatio ,
+        //   y *pixelRatio,
+        // ];
+        const angle = (-this.map.getBearing() * Math.PI) / 180;
+        // https://lexique.netmath.ca/en/rotation-in-a-cartesian-plane/#:~:text=Formulas,%E2%88%92x%2C%E2%88%92y).
+        const matrixx = matrix([
+          [Math.cos(angle), -Math.sin(angle)],
+          [Math.sin(angle), Math.cos(angle)],
+        ]);
+        let { width, height } = this.map.getCanvas();
+        const northWestPixel = this.map.project(
+          this.map.getBounds().getNorthWest(),
+        );
+        const northEastPixel = this.map.project(
+          this.map.getBounds().getNorthEast(),
+        );
+        width = Math.sqrt(
+          (northWestPixel.x - northEastPixel.x) ** 2 +
+            (northWestPixel.y - northEastPixel.y) ** 2,
+        );
+        const southWestPixel = this.map.project(
+          this.map.getBounds().getSouthWest(),
+        );
+        height = Math.sqrt(
+          (northWestPixel.x - southWestPixel.x) ** 2 +
+            (northWestPixel.y - southWestPixel.y) ** 2,
+        );
+        const rotationXPlaneOrigin = width / 2;
+        const rotationYPlaneOrigin = height / 2;
+        const xInNewPlane = x * pixelRatio - rotationXPlaneOrigin;
+        const yInNewPlane = y * pixelRatio - rotationYPlaneOrigin;
+        const rotatedCoordInNewPlane = multiply(
+          [xInNewPlane, yInNewPlane],
+          matrixx,
+        ).toArray();
+        return [
+          rotatedCoordInNewPlane[0] + rotationXPlaneOrigin,
+          rotatedCoordInNewPlane[1] + rotationYPlaneOrigin,
+        ];
       },
     });
+  }
+
+  projectWithRotation({ lng, lat }) {
+    const pixelRatio = window.devicePixelRatio || 1;
+    const { x, y } = this.map.project({ lng, lat });
+    const { width, height } = this.map.getCanvas();
+
+    // return [
+    //   x *pixelRatio ,
+    //   y *pixelRatio,
+    // ];
+    const angle = (-this.map.getBearing() * Math.PI) / 180;
+    // https://lexique.netmath.ca/en/rotation-in-a-cartesian-plane/#:~:text=Formulas,%E2%88%92x%2C%E2%88%92y).
+    const matrixx = matrix([
+      [Math.cos(angle), -Math.sin(angle)],
+      [Math.sin(angle), Math.cos(angle)],
+    ]);
+    const rotationXPlaneOrigin = width / 2;
+    const rotationYPlaneOrigin = height / 2;
+    const xInNewPlane = x * pixelRatio - rotationXPlaneOrigin;
+    const yInNewPlane = y * pixelRatio - rotationYPlaneOrigin;
+    const rotatedCoordInNewPlane = multiply(
+      [xInNewPlane, yInNewPlane],
+      matrixx,
+    ).toArray();
+    return [
+      rotatedCoordInNewPlane[0] + rotationXPlaneOrigin,
+      rotatedCoordInNewPlane[1] + rotationYPlaneOrigin,
+    ];
   }
 
   /**
@@ -56,7 +126,7 @@ class TrackerLayer extends mixin(Layer) {
       time,
       [canvas.width, canvas.height],
       getResolution(this.map),
-      !this.map.isMoving() && !this.map.isRotating() && !this.map.isZooming(),
+      this.map.getBearing(),
     );
   }
 

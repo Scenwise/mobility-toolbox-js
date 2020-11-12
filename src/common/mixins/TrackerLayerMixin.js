@@ -236,11 +236,17 @@ const TrackerLayerMixin = (Base) =>
      * @param {Array<Number>} size Map's size: [width, height].
      * @param {Number} zoom Map's zoom level.
      * @param {Number} resolution Map's resolution.
+     * @param {Number} resolution Map's rotation (only used with mapbox).
      */
-    start(size, zoom, resolution) {
+    start(size, zoom, resolution, rotation) {
       this.stop();
       this.tracker.setVisible(true);
-      this.tracker.renderTrajectories(this.currTime, size, resolution);
+      this.tracker.renderTrajectories(
+        this.currTime,
+        size,
+        resolution,
+        rotation,
+      );
       this.startUpdateTime(zoom);
     }
 
@@ -264,8 +270,8 @@ const TrackerLayerMixin = (Base) =>
     stop() {
       this.stopUpdateTime();
       if (this.tracker) {
-        this.tracker.setVisible(false);
-        this.tracker.clear();
+        // this.tracker.setVisible(false);
+        // this.tracker.clear();
       }
     }
 
@@ -282,12 +288,18 @@ const TrackerLayerMixin = (Base) =>
      * @param {dateString | value} time
      * @param {Array<number>} size
      * @param {number} resolution
+     * @param {number} rotation
      */
-    setCurrTime(time, size, resolution) {
+    setCurrTime(time, size, resolution, rotation) {
       const newTime = new Date(time);
       this.currTime = newTime;
       this.lastUpdateTime = new Date();
-      this.tracker.renderTrajectories(this.currTime, size, resolution);
+      this.tracker.renderTrajectories(
+        this.currTime,
+        size,
+        resolution,
+        rotation,
+      );
     }
 
     /**

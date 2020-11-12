@@ -156,7 +156,6 @@ export default class Tracker {
   setHoverVehicleId(id) {
     if (id !== this.hoverVehicleId) {
       this.hoverVehicleId = id;
-      this.renderTrajectories();
     }
   }
 
@@ -177,9 +176,15 @@ export default class Tracker {
    * @param {Date} currTime The date to render.
    * @param {number[2]} size Size ([width, height]) of the canvas to render.
    * @param {number} resolution Which resolution of the map to render.
+   * @param {number} mapRotation Which rotation of the map to render.
    * @private
    */
-  renderTrajectories(currTime = Date.now(), size = [], resolution) {
+  renderTrajectories(
+    currTime = Date.now(),
+    size = [],
+    resolution,
+    mapRotation,
+  ) {
     this.clear();
     const [width, height] = size;
     if (
@@ -194,6 +199,12 @@ export default class Tracker {
      * @type {number}
      */
     this.currResolution = resolution || this.currResolution;
+    /**
+     * Current map rotation.
+     * @type {number}
+     */
+    this.currMapRotation =
+      mapRotation !== undefined ? mapRotation : this.currMapRotation;
     let hoverVehicleImg;
     let hoverVehiclePx;
 
@@ -290,11 +301,17 @@ export default class Tracker {
 
         const vehicleImg = this.style(traj, this.currResolution);
         if (this.hoverVehicleId !== traj.id) {
+          this.canvasContext.save();
+          if (this.currMapRotation) {
+            // Sould rotate only the image but not.
+            // this.canvasContext.rotate((-this.currMapRotation * Math.PI) / 180);
+          }
           this.canvasContext.drawImage(
             vehicleImg,
             px[0] - vehicleImg.height / 2,
             px[1] - vehicleImg.height / 2,
           );
+          this.canvasContext.restore();
         } else {
           // Store the canvas to draw it at the end
           hoverVehicleImg = vehicleImg;
