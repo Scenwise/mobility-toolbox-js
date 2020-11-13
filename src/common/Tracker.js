@@ -299,19 +299,17 @@ export default class Tracker {
         // Trajectory with pixel (i.e. within map extent) will be in renderedTrajectories.
         this.trajectories[i].rendered = true;
 
-        const vehicleImg = this.style(traj, this.currResolution);
+        const vehicleImg = this.style(
+          traj,
+          this.currResolution,
+          this.currMapRotation,
+        );
         if (this.hoverVehicleId !== traj.id) {
-          this.canvasContext.save();
-          if (this.currMapRotation) {
-            // Sould rotate only the image but not.
-            // this.canvasContext.rotate((-this.currMapRotation * Math.PI) / 180);
-          }
           this.canvasContext.drawImage(
             vehicleImg,
             px[0] - vehicleImg.height / 2,
             px[1] - vehicleImg.height / 2,
           );
-          this.canvasContext.restore();
         } else {
           // Store the canvas to draw it at the end
           hoverVehicleImg = vehicleImg;

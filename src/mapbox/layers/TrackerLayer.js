@@ -46,30 +46,14 @@ class TrackerLayer extends mixin(Layer) {
         //   x *pixelRatio ,
         //   y *pixelRatio,
         // ];
+
+        // The canvas is rotated by Mapbox so we have to rotate also the pixel coordinate from the center of the map.
         const angle = (-this.map.getBearing() * Math.PI) / 180;
         // https://lexique.netmath.ca/en/rotation-in-a-cartesian-plane/#:~:text=Formulas,%E2%88%92x%2C%E2%88%92y).
         const matrixx = matrix([
           [Math.cos(angle), -Math.sin(angle)],
           [Math.sin(angle), Math.cos(angle)],
         ]);
-        let { width, height } = this.map.getCanvas();
-        const northWestPixel = this.map.project(
-          this.map.getBounds().getNorthWest(),
-        );
-        const northEastPixel = this.map.project(
-          this.map.getBounds().getNorthEast(),
-        );
-        width = Math.sqrt(
-          (northWestPixel.x - northEastPixel.x) ** 2 +
-            (northWestPixel.y - northEastPixel.y) ** 2,
-        );
-        const southWestPixel = this.map.project(
-          this.map.getBounds().getSouthWest(),
-        );
-        height = Math.sqrt(
-          (northWestPixel.x - southWestPixel.x) ** 2 +
-            (northWestPixel.y - southWestPixel.y) ** 2,
-        );
         const rotationXPlaneOrigin = width / 2;
         const rotationYPlaneOrigin = height / 2;
         const xInNewPlane = x * pixelRatio - rotationXPlaneOrigin;

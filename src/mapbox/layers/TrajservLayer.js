@@ -54,7 +54,6 @@ class TrajservLayer extends mixin(TrackerLayer) {
       // Set to true if the canvas source is animated. If the canvas is static, animate should be set to false to improve performance.
       animate: true,
     };
-    console.log(this.map.getBearing(), getSourceCoordinates(map));
 
     const layer = {
       id: this.key,
@@ -96,7 +95,6 @@ class TrajservLayer extends mixin(TrackerLayer) {
       },
       beforeId,
     );
-    console.log(this.map.unproject([10, 10]));
     map.addSource('points', {
       type: 'geojson',
       data: {
@@ -157,8 +155,6 @@ class TrajservLayer extends mixin(TrackerLayer) {
    * @private
    */
   onMove() {
-    // if (!this.map.isRotating()) {
-    console.log(this.map.getBearing(), getSourceCoordinates(this.map));
     this.map.getSource(this.key).setCoordinates(getSourceCoordinates(this.map));
     this.map.getSource('route').setData({
       type: 'Feature',
@@ -176,34 +172,8 @@ class TrajservLayer extends mixin(TrackerLayer) {
         coordinates: this.map.unproject([10, 10]).toArray(),
       },
     });
-    // }
 
-    let { width, height } = this.map.getCanvas();
-    const northWestPixel = this.map.project(
-      this.map.getBounds().getNorthWest(),
-    );
-    const northEastPixel = this.map.project(
-      this.map.getBounds().getNorthEast(),
-    );
-    console.log(
-      northWestPixel,
-      northEastPixel,
-      Math.sqrt(
-        (northWestPixel.x - northEastPixel.x) ** 2 +
-          (northWestPixel.y - northEastPixel.y) ** 2,
-      ),
-    );
-    width = Math.sqrt(
-      (northWestPixel.x - northEastPixel.x) ** 2 +
-        (northWestPixel.y - northEastPixel.y) ** 2,
-    );
-    const southWestPixel = this.map.project(
-      this.map.getBounds().getSouthWest(),
-    );
-    height = Math.sqrt(
-      (northWestPixel.x - southWestPixel.x) ** 2 +
-        (northWestPixel.y - southWestPixel.y) ** 2,
-    );
+    const { width, height } = this.map.getCanvas();
 
     // We must get the proper source coordinate.
     this.tracker.renderTrajectories(
@@ -294,7 +264,7 @@ class TrajservLayer extends mixin(TrackerLayer) {
   /** @ignore */
   defaultStyle(props) {
     const zoom = this.map.getZoom();
-    return super.defaultStyle(props, zoom);
+    return super.defaultStyle(props, zoom, this.map.getBearing());
   }
 
   /**
