@@ -64,7 +64,7 @@ class TralisAPI {
     /** @ignore */
     this.departureUpdateTimeout = null;
     /** @ignore */
-    this.maxDepartureAge = 60*24;
+    this.maxDepartureAge = 60 * 24;
     /** @ignore */
     this.extraGeoms = {};
   }
