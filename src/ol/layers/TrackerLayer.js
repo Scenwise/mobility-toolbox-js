@@ -90,8 +90,8 @@ class TrackerLayer extends mixin(Layer) {
            * Current value of the zoom.
            * @type {number}
            */
-          this.currentZoom = z;
-          this.startUpdateTime(z);
+          /* this.currentZoom = z;
+          this.startUpdateTime(z); */
         }
       }),
       this.map.on('pointermove', (evt) => {
