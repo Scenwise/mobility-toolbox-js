@@ -179,7 +179,6 @@ export default class Tracker {
    * @private
    */
   renderTrajectories(currTime = Date.now(), size = [], resolution) {
-    this.clear();
     const [width, height] = size;
     if (
       width &&
@@ -196,6 +195,7 @@ export default class Tracker {
     let hoverVehicleImg;
     let hoverVehiclePx;
 
+    let cleared = false;
     for (let i = (this.trajectories || []).length - 1; i >= 0; i -= 1) {
       const traj = this.trajectories[i];
 
@@ -289,11 +289,20 @@ export default class Tracker {
 
         const vehicleImg = this.style(traj, this.currResolution);
         if (this.hoverVehicleId !== traj.id) {
-          this.canvasContext.drawImage(
-            vehicleImg,
-            px[0] - vehicleImg.height / 2,
-            px[1] - vehicleImg.height / 2,
-          );
+          if ((px[0] >= 0 && px[1] >= 0 && px[0] <= this.canvas.width && px[1] <= this.canvas.height) &&            
+           (!("px_before" in this.trajectories[i]) || (this.trajectories[i].px_before != Math.floor(px[0]) || this.trajectories[i].py_before != Math.floor(px[1]))))  {
+            if (!cleared) {
+              cleared = true;
+              this.clear();
+            }
+            this.trajectories[i].px_before = Math.floor(px[0]);
+            this.trajectories[i].py_before = Math.floor(px[1]);
+            this.canvasContext.drawImage(
+              vehicleImg,
+              px[0] - vehicleImg.height / 2,
+              px[1] - vehicleImg.height / 2,
+            );
+          }
         } else {
           // Store the canvas to draw it at the end
           hoverVehicleImg = vehicleImg;
