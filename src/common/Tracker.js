@@ -82,17 +82,18 @@ export default class Tracker {
      * HTML <canvas> element.
      * @type {Canvas}
      */
+    const pixelRatio = 2;
     this.canvas = opts.canvas || document.createElement('canvas');
-    this.canvas.width = opts.width;
-    this.canvas.height = opts.height;
+    this.canvas.width = opts.width * pixelRatio;
+    this.canvas.height = opts.height * pixelRatio;
     this.canvas.setAttribute(
       'style',
       [
         'position: absolute',
         'top: 0',
         'bottom: 0',
-        'width: 100%',
-        'height: 100%',
+        `width: ${opts.width}px`,
+        `height: ${opts.height}px`,
         'pointer-events: none',
         'visibility: visible',
         'margin-top: inherit', // for scrolling behavior.
@@ -250,15 +251,18 @@ export default class Tracker {
     this.clear();
     this.canvas.style.left = '0px';
     this.canvas.style.top = '0px';
-
+    console.log(size);
     const [width, height] = size;
     if (
       width &&
       height &&
       (this.canvas.width !== width || this.canvas.height !== height)
     ) {
-      [this.canvas.width, this.canvas.height] = [width, height];
+      [this.canvas.width, this.canvas.height] = [width * 2, height * 2];
     }
+    console.log(this.canvas.width);
+    this.canvas.style.width = `${this.canvas.width / 2}px`;
+    this.canvas.style.height = `${this.canvas.height / 2}px`;
     /**
      * Current resolution.
      * @type {number}
@@ -358,12 +362,13 @@ export default class Tracker {
       if (coord) {
         // We set the rotation of the trajectory (used by tralis).
         this.trajectories[i].coordinate = coord;
-        const px = this.getPixelFromCoordinate(coord);
+        let px = this.getPixelFromCoordinate(coord);
 
         if (!px) {
           // eslint-disable-next-line no-continue
           continue;
         }
+        px = [px[0] * 2, px[1] * 2];
         // Trajectory with pixel (i.e. within map extent) will be in renderedTrajectories.
         this.trajectories[i].rendered = true;
         this.renderedTrajectories.push(this.trajectories[i]);
