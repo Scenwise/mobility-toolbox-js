@@ -119,7 +119,7 @@ class TralisLayer extends mixin(TrackerLayer) {
 
           const linePaintInterpolation = [
               'interpolate',
-              ['cubic-bezier', 1, 0, 1, 0],
+              ['linear'],
               ['line-progress'],
               0,
               '#BEBEBE',
