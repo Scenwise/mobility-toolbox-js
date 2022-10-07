@@ -1,7 +1,7 @@
 import TrackerLayer from './TrackerLayer';
 import mixin from '../../common/mixins/TralisLayerMixin';
 import { toLonLat } from 'ol/proj';
-import { getTypeIndex } from '../../common/trackerConfig';
+import {bgColors, types, getTypeIndex} from '../../common/trackerConfig';
 
 /**
  * Responsible for loading and display data from a Tralis service.
@@ -97,12 +97,18 @@ class TralisLayer extends mixin(TrackerLayer) {
       this.api
         .getFullTrajectory(id, this.mode, this.generalizationLevel)
         .then((fullTrajectory) => {
-          const stroke = fullTrajectory.features[0].properties.stroke
-          if (stroke && stroke[0] !== '#') {
-            fullTrajectory.features[0].properties.stroke = `#${stroke}`;
+           const type = fullTrajectory.features[0].properties.type
+           fullTrajectory.features[0].properties.typeIdx = getTypeIndex(type)
+
+          let lineColor = fullTrajectory.features[0].properties.stroke
+          if (lineColor && lineColor[0] !== '#') {
+            lineColor = `#${lineColor}`
+            fullTrajectory.features[0].properties.stroke = lineColor;
           }
-          const type = fullTrajectory.features[0].properties.type
-          fullTrajectory.features[0].properties.typeIdx = getTypeIndex(type)
+          else if(!lineColor){
+              lineColor = bgColors[types.findIndex((t) => t.test(type))]
+          }
+
           fullTrajectory.features[0].geometry.geometries.forEach(element => {
             const newCoords = []
             for (const coord of element.coordinates) {
@@ -110,7 +116,19 @@ class TralisLayer extends mixin(TrackerLayer) {
             }
             element.coordinates = newCoords
           });
+
+          const linePaintInterpolation = [
+              'interpolate',
+              ['linear'],
+              ['line-progress'],
+              0,
+              '#BEBEBE',
+              1,
+              lineColor
+          ]
           this.map.getSource("selectedLineTraject").setData(fullTrajectory)
+          this.map.setPaintProperty('trajectoryLine', 'line-gradient', linePaintInterpolation)
+
         })
     }
   }
