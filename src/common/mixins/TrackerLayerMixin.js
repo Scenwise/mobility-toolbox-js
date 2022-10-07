@@ -14,6 +14,7 @@ import { delayTrackerStyle } from '../utils';
 const LINE_FILTER = 'publishedlinename';
 const ROUTE_FILTER = 'tripnumber';
 const OPERATOR_FILTER = 'operator';
+const VEHICLETYPE_FILTER = 'vehicletype';
 
 /**
  * TrackerLayerInterface.
@@ -139,7 +140,7 @@ const TrackerLayerMixin = (Base) =>
      */
     defineProperties(options) {
       // Tracker options use to build the tracker.
-      let { regexPublishedLineName, publishedLineName, tripNumber, operator } =
+      let { regexPublishedLineName, publishedLineName, tripNumber, operator, vehicleType } =
         options;
       const {
         style,
@@ -329,6 +330,13 @@ const TrackerLayerMixin = (Base) =>
           get: () => operator,
           set: (newOperator) => {
             operator = newOperator;
+            this.updateFilters();
+          },
+        },
+        vehicleType: {
+          get: () => vehicleType,
+          set: (newVehicleType) => {
+            vehicleType = newVehicleType;
             this.updateFilters();
           },
         },
@@ -534,6 +542,10 @@ const TrackerLayerMixin = (Base) =>
       if (this.sort) {
         trajectories.sort(this.sort);
       }
+      if(this.filter) {
+        trajectories.filter(this.filter);
+      }
+
       // console.timeEnd('sort');
       window.trajectories = trajectories;
 
@@ -720,15 +732,17 @@ const TrackerLayerMixin = (Base) =>
       const publishedName = this.publishedLineName || parameters[LINE_FILTER];
       const tripNumber = this.tripNumber || parameters[ROUTE_FILTER];
       const operator = this.operator || parameters[OPERATOR_FILTER];
+      const vehicleType = this.vehicleType || parameters[VEHICLETYPE_FILTER];
       const { regexPublishedLineName } = this;
 
       // Only overrides filter function if one of this property exists.
-      if (publishedName || tripNumber || operator || regexPublishedLineName) {
+      if (publishedName || tripNumber || operator || vehicleType || regexPublishedLineName) {
         // filter is the property in TrackerLayerMixin.
         this.filter = createFilters(
           publishedName,
           tripNumber,
           operator,
+          vehicleType,
           regexPublishedLineName,
         );
       }
