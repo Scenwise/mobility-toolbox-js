@@ -150,6 +150,7 @@ const TrackerLayerMixin = (Base) =>
         selectedVehicleId,
         filter,
         sort,
+        userLocationBbox,
         time,
         live,
       } = options;
@@ -204,6 +205,14 @@ const TrackerLayerMixin = (Base) =>
          */
         sort: {
           value: sort,
+          writable: true,
+        },
+
+        /**
+         * Location that specify by user while logging in.
+         */
+        userLocationBbox: {
+          value: userLocationBbox,
           writable: true,
         },
 

@@ -87,7 +87,6 @@ const TralisLayerMixin = (TrackerLayer) =>
       this.api = options.api || new TralisAPI(options);
       this.tenant = options.tenant || ''; // sbb,sbh or sbm
       this.mots = options.mots || '';
-      this.userLocationBbox = options.userLocationBbox || [];
       this.minZoomNonTrain = options.minZoomNonTrain || 9; // Min zoom level from which non trains are allowed to be displayed. Min value is 9 (as configured by the server
       this.format = new GeoJSON();
       this.generalizationLevelByZoom = options.generalizationLevelByZoom || {
@@ -152,13 +151,7 @@ const TralisLayerMixin = (TrackerLayer) =>
       for (let i = keys.length - 1; i >= 0; i -= 1) {
         this.purgeTrajectory(this.trajectories[keys[i]], extent, zoom);
       }
-      console.log(extent)
       const bbox = [...extent];
-      console.log(bbox)
-      if (this.userLocationBbox)  {
-        console.log(this.BboxCheck(extent))
-
-      }
 
       if (this.isUpdateBboxOnMoveEnd) {
         bbox.push(zoom);
@@ -181,60 +174,60 @@ const TralisLayerMixin = (TrackerLayer) =>
       this.api.bbox = bbox;
     }
 
-    BboxCheck(extent) {
-      const southWest = extent[0];
-      const northEast = extent[1];
-
-      const userLocationSouthWest = this.userLocationBbox[0];
-      const userLocationNorthEast = this.userLocationBbox[0];
-
-      const finalBbox = []
-
-      // If the lng of extent southWest is outside of the userLocation southWest
-      if(southWest[0] > userLocationSouthWest[0] ) {
-        // If the lng of extent northEast is outside of the userLocation southWest
-        if(northEast[0] >= userLocationSouthWest[0]) {
-          // No vehicles need to be rendered
-          return finalBbox
-        }
-
-        // If the lng of extent northEast is inside of the userLocation lng range
-        else if(northEast[0] < userLocationSouthWest[0] && northEast[0] >= userLocationNorthEast[0]) {
-          // The southWest lng of the final box is the userLocation southWest lng
-          finalBbox[0][0] = userLocationSouthWest[0]
-          // The northEast lng of the final box is the extent northEast lng
-          finalBbox[1][0] = northEast[0]
-        }
-        // If the lng of extent northEast is outside of the userLocation northEast
-        else {
-          // The southWest lng of the final box is the userLocation southWest lng
-          finalBbox[0][0] = userLocationSouthWest[0]
-          // The northEast lng of the final box is the userLocation northEast lng
-          finalBbox[1][0] = userLocationNorthEast[0]
-
-        }
-      }
-      // If the lng of extent southWest is inside of the userLocation lng range
-      if(southWest[0] <= userLocationSouthWest[0]  && southWest[0] > userLocationNorthEast[0]) {
-        // The southWest lng of the final box is the extent southWest lng
-        finalBbox[0][0] = southWest[0]
-        // If the lng of extent northEast is inside of the userLocation lng range
-        if(northEast[0] < userLocationSouthWest[0] && northEast[0] >= userLocationNorthEast[0]) {
-          // The northEast lng of the final box is the extent northEast lng
-          finalBbox[1][0] = northEast[0]
-        }
-        else {
-          // The northEast lng of the final box is the userLocation northEast lng
-          finalBbox[1][0] = userLocationNorthEast[0]
-        }
-        }
-      if(southWest[0] <= userLocationSouthWest[0]) {
-        // No vehicles need to be rendered
-        return finalBbox
-      }
-      return finalBbox
-
-    }
+    // BboxCheck(extent) {
+    //   const southWest = extent[0];
+    //   const northEast = extent[1];
+    //
+    //   const userLocationSouthWest = this.userLocationBbox[0];
+    //   const userLocationNorthEast = this.userLocationBbox[0];
+    //
+    //   const finalBbox = []
+    //
+    //   // If the lng of extent southWest is outside of the userLocation southWest
+    //   if(southWest[0] > userLocationSouthWest[0] ) {
+    //     // If the lng of extent northEast is outside of the userLocation southWest
+    //     if(northEast[0] >= userLocationSouthWest[0]) {
+    //       // No vehicles need to be rendered
+    //       return finalBbox
+    //     }
+    //
+    //     // If the lng of extent northEast is inside of the userLocation lng range
+    //     else if(northEast[0] < userLocationSouthWest[0] && northEast[0] >= userLocationNorthEast[0]) {
+    //       // The southWest lng of the final box is the userLocation southWest lng
+    //       finalBbox[0][0] = userLocationSouthWest[0]
+    //       // The northEast lng of the final box is the extent northEast lng
+    //       finalBbox[1][0] = northEast[0]
+    //     }
+    //     // If the lng of extent northEast is outside of the userLocation northEast
+    //     else {
+    //       // The southWest lng of the final box is the userLocation southWest lng
+    //       finalBbox[0][0] = userLocationSouthWest[0]
+    //       // The northEast lng of the final box is the userLocation northEast lng
+    //       finalBbox[1][0] = userLocationNorthEast[0]
+    //
+    //     }
+    //   }
+    //   // If the lng of extent southWest is inside of the userLocation lng range
+    //   if(southWest[0] <= userLocationSouthWest[0]  && southWest[0] > userLocationNorthEast[0]) {
+    //     // The southWest lng of the final box is the extent southWest lng
+    //     finalBbox[0][0] = southWest[0]
+    //     // If the lng of extent northEast is inside of the userLocation lng range
+    //     if(northEast[0] < userLocationSouthWest[0] && northEast[0] >= userLocationNorthEast[0]) {
+    //       // The northEast lng of the final box is the extent northEast lng
+    //       finalBbox[1][0] = northEast[0]
+    //     }
+    //     else {
+    //       // The northEast lng of the final box is the userLocation northEast lng
+    //       finalBbox[1][0] = userLocationNorthEast[0]
+    //     }
+    //     }
+    //   if(southWest[0] <= userLocationSouthWest[0]) {
+    //     // No vehicles need to be rendered
+    //     return finalBbox
+    //   }
+    //   return finalBbox
+    //
+    // }
 
     setMode(mode) {
       if (this.mode === mode) {
@@ -290,10 +283,14 @@ const TralisLayerMixin = (TrackerLayer) =>
      */
     purgeTrajectory(trajectory, extent, zoom) {
       const { type, bounds, train_id: id } = trajectory.properties;
-      if (
-        !intersects(extent, bounds) ||
-        (type !== 'rail' && zoom < (this.minZoomNonTrain || 9))
-      ) {
+
+      let condition = !intersects(extent, bounds) || (type !== 'rail' && zoom < (this.minZoomNonTrain || 9))
+      console.log("Purge")
+      if(this.userLocationBbox) {
+        console.log("Enter")
+        condition = condition || !intersects(this.userLocationBbox, bounds)
+      }
+      if (condition) {
         this.removeTrajectory(id);
         return true;
       }
