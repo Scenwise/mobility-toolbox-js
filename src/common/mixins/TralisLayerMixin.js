@@ -287,7 +287,8 @@ const TralisLayerMixin = (TrackerLayer) =>
       let condition = !intersects(extent, bounds) || (type !== 'rail' && zoom < (this.minZoomNonTrain || 9))
       console.log("Purge")
       if(this.userLocationBbox) {
-        console.log("Enter")
+        console.log(this.userLocationBbox)
+        console.log(bounds)
         condition = condition || !intersects(this.userLocationBbox, bounds)
       }
       if (condition) {
