@@ -87,7 +87,7 @@ const TralisLayerMixin = (TrackerLayer) =>
       this.api = options.api || new TralisAPI(options);
       this.tenant = options.tenant || ''; // sbb,sbh or sbm
       this.mots = options.mots || '';
-      this.userLocationBbox = options.userLocationBbox;
+      this.userLocationBbox = options.userLocationBbox || [];
       this.minZoomNonTrain = options.minZoomNonTrain || 9; // Min zoom level from which non trains are allowed to be displayed. Min value is 9 (as configured by the server
       this.format = new GeoJSON();
       this.generalizationLevelByZoom = options.generalizationLevelByZoom || {
@@ -155,7 +155,10 @@ const TralisLayerMixin = (TrackerLayer) =>
       console.log(extent)
       const bbox = [...extent];
       console.log(bbox)
-      console.log(this.BboxCheck(extent))
+      if (this.userLocationBbox)  {
+        console.log(this.BboxCheck(extent))
+
+      }
 
       if (this.isUpdateBboxOnMoveEnd) {
         bbox.push(zoom);
