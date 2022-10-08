@@ -286,10 +286,13 @@ const TralisLayerMixin = (TrackerLayer) =>
 
       let condition = !intersects(extent, bounds) || (type !== 'rail' && zoom < (this.minZoomNonTrain || 9))
       console.log("Purge")
-      if(this.userLocationBbox) {
-        console.log(this.userLocationBbox)
+      let userLocationBbox = this.userLocationBbox
+      if(userLocationBbox) {
+        console.log(extent)
+        userLocationBbox = [...fromLonLat(userLocationBbox.southWestBound), ...fromLonLat(userLocationBbox.northEastBound)]
+        console.log(userLocationBbox)
         console.log(bounds)
-        condition = condition || !intersects(this.userLocationBbox, bounds)
+        condition = condition || !intersects(userLocationBbox, bounds)
       }
       if (condition) {
         this.removeTrajectory(id);
