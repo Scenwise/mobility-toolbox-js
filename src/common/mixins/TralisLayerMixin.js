@@ -151,7 +151,6 @@ const TralisLayerMixin = (TrackerLayer) =>
       for (let i = keys.length - 1; i >= 0; i -= 1) {
         this.purgeTrajectory(this.trajectories[keys[i]], extent, zoom);
       }
-
       const bbox = [...extent];
 
       if (this.isUpdateBboxOnMoveEnd) {
@@ -174,7 +173,7 @@ const TralisLayerMixin = (TrackerLayer) =>
 
       this.api.bbox = bbox;
     }
-
+    
     setMode(mode) {
       if (this.mode === mode) {
         return;
@@ -229,10 +228,14 @@ const TralisLayerMixin = (TrackerLayer) =>
      */
     purgeTrajectory(trajectory, extent, zoom) {
       const { type, bounds, train_id: id } = trajectory.properties;
-      if (
-        !intersects(extent, bounds) ||
-        (type !== 'rail' && zoom < (this.minZoomNonTrain || 9))
-      ) {
+
+      let condition = !intersects(extent, bounds) || (type !== 'rail' && zoom < (this.minZoomNonTrain || 9))
+      let userLocationBbox = this.userLocationBbox
+      if(userLocationBbox) {
+        userLocationBbox = [...fromLonLat(userLocationBbox.southWestBound), ...fromLonLat(userLocationBbox.northEastBound)]
+        condition = condition || !intersects(userLocationBbox, bounds)
+      }
+      if (condition) {
         this.removeTrajectory(id);
         return true;
       }
