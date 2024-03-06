@@ -133,6 +133,11 @@ const TralisLayerMixin = (TrackerLayer) =>
         // Update the bbox on each move end
         this.setBbox();
       }
+
+      // Keep the selected vehicle while the map style changes
+      if (this.selectedVehicleId) {
+        this.highlightTrajectory(this.selectedVehicleId);
+      }
     }
 
     stop() {

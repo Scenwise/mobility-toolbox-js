@@ -126,9 +126,8 @@ class TralisLayer extends mixin(TrackerLayer) {
               1,
               lineColor
           ]
-          this.map.getSource("selectedLineTraject").setData(fullTrajectory)
-          this.map.setPaintProperty('trajectoryLine', 'line-gradient', linePaintInterpolation)
-
+          this.map.getSource("selectedLineTraject").setData(fullTrajectory);
+          this.map.setPaintProperty('trajectoryLine', 'line-gradient', linePaintInterpolation);
         })
     }
   }
