@@ -133,6 +133,12 @@ const TralisLayerMixin = (TrackerLayer) =>
         // Update the bbox on each move end
         this.setBbox();
       }
+
+      console.log('selectedVehicleId', this.selectedVehicleId);
+      console.log('visible', this.map.getLayer(this.key).visibility == 'visible');
+      if (this.map.getLayer(this.key).visibility == 'visible' && this.selectedVehicleId) {
+        this.highlightTrajectory(this.selectedVehicleId);
+      }
     }
 
     stop() {
