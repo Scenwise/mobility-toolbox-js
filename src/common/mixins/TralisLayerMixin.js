@@ -135,8 +135,7 @@ const TralisLayerMixin = (TrackerLayer) =>
       }
 
       console.log('selectedVehicleId', this.selectedVehicleId);
-      console.log('visible', this.map.getLayer(this.key).visibility == 'visible');
-      if (this.map.getLayer(this.key).visibility == 'visible' && this.selectedVehicleId) {
+      if (this.selectedVehicleId) {
         this.highlightTrajectory(this.selectedVehicleId);
       }
     }

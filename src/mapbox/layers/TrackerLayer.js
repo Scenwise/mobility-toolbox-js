@@ -191,6 +191,8 @@ class TrackerLayer extends mixin(Layer) {
     this.map.on('moveend', this.onMoveEnd);
     this.map.on('zoomend', this.onZoomEnd);
 
+    console.log('selectedVehicleId', this.selectedVehicleId);
+
   }
 
   /**
