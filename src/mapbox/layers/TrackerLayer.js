@@ -190,6 +190,13 @@ class TrackerLayer extends mixin(Layer) {
     this.map.on('move', this.onMove);
     this.map.on('moveend', this.onMoveEnd);
     this.map.on('zoomend', this.onZoomEnd);
+
+    console.log('selectedVehicleId', this.selectedVehicleId);
+    console.log('visible', this.map.getLayer(this.key).visibility == 'visible');
+    if (this.map.getLayer(this.key).visibility == 'visible' && this.selectedVehicleId) {
+      this.highlightTrajectory(this.selectedVehicleId);
+    }
+
   }
 
   /**
